@@ -1,50 +1,38 @@
-# Welcome to your Expo app 👋
+<h1 align="center"> Controle de Pedidos </h1>
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<p align="center">
+Aplicativo feito para conclusão do trabalho de extensão da disciplina Programação para dispositivos móveis da Estácio
+</p>
 
-## Get started
+<p align="center">
+  <a href="#-tecnologias">Tecnologias</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-projeto">Projeto</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+ 
+  
+</p>
 
-1. Install dependencies
 
-   ```bash
-   npm install
-   ```
 
-2. Start the app
+<br>
 
-   ```bash
-    npx expo start
-   ```
+<p align="center">
+  <img alt="Projeto controle de pedidos" src="./imagem.png" width="100%">
+</p>
 
-In the output, you'll find options to open the app in a
+## 🚀 Tecnologias
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Esse projeto foi desenvolvido com as seguintes tecnologias:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Expo
+- TypScript
+- Git e Github
+- node
 
-## Get a fresh project
+## 💻 Projeto
 
-When you're ready, run:
+O App tem finalidade de ser um controle de pedidos, para organizar pedidos de pequenas empresas.
+Link Rápido: 
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Feito com ♥ by Natanael 
