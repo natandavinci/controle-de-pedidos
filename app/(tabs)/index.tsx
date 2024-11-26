@@ -1,74 +1,208 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+interface Produto {
+  nome: string;
+  quantidade: number;
+}
 
-export default function HomeScreen() {
+interface Pedido {
+  id: string;
+  nomeCliente: string;
+  produtos: Produto[];
+  data: string;
+}
+
+export default function App() {
+  const [nomeCliente, setNomeCliente] = useState('');
+  const [produtoNome, setProdutoNome] = useState('');
+  const [quantidade, setQuantidade] = useState('');
+  const [pedidos, setPedidos] = useState<Pedido[]>([]);
+  const [produtosDoPedido, setProdutosDoPedido] = useState<Produto[]>([]);
+  const [mostrarPedidos, setMostrarPedidos] = useState(false);
+
+  // Carregar pedidos armazenados no AsyncStorage quando o app for iniciado
+  useEffect(() => {
+    const carregarPedidos = async () => {
+      try {
+        const pedidosSalvos = await AsyncStorage.getItem('pedidos');
+        if (pedidosSalvos) {
+          setPedidos(JSON.parse(pedidosSalvos));
+        }
+      } catch (error) {
+        console.log("Erro ao carregar pedidos:", error);
+      }
+    };
+    carregarPedidos();
+  }, []);
+
+  // Função para adicionar produto à lista do pedido
+  const adicionarProduto = () => {
+    if (!produtoNome || !quantidade) return;
+
+    const novoProduto: Produto = {
+      nome: produtoNome,
+      quantidade: parseInt(quantidade),
+    };
+
+    setProdutosDoPedido((prevProdutos) => [...prevProdutos, novoProduto]);
+    setProdutoNome('');
+    setQuantidade('');
+  };
+
+  // Função para adicionar o pedido à lista e salvar no AsyncStorage
+  const adicionarPedido = async () => {
+    if (!nomeCliente || produtosDoPedido.length === 0) return;
+
+    const dataAtual = new Date().toLocaleString();
+    const novoPedido: Pedido = {
+      id: Date.now().toString(),
+      nomeCliente,
+      produtos: produtosDoPedido,
+      data: dataAtual,
+    };
+
+    const pedidosAtualizados = [...pedidos, novoPedido];
+
+    try {
+      // Salvar os pedidos no AsyncStorage
+      await AsyncStorage.setItem('pedidos', JSON.stringify(pedidosAtualizados));
+      setPedidos(pedidosAtualizados);
+    } catch (error) {
+      console.log("Erro ao salvar pedido:", error);
+      Alert.alert('Erro', 'Ocorreu um erro ao salvar o pedido.');
+    }
+
+    setNomeCliente('');
+    setProdutosDoPedido([]);
+  };
+
+  // Função para remover um pedido
+  const removerPedido = async (idPedido: string) => {
+    try {
+      // Filtra os pedidos para remover o pedido com o id específico
+      const pedidosAtualizados = pedidos.filter(pedido => pedido.id !== idPedido);
+
+      // Atualiza o AsyncStorage
+      await AsyncStorage.setItem('pedidos', JSON.stringify(pedidosAtualizados));
+
+      // Atualiza o estado
+      setPedidos(pedidosAtualizados);
+      Alert.alert('Pedido removido', 'O pedido foi removido com sucesso.');
+    } catch (error) {
+      console.log("Erro ao remover pedido:", error);
+      Alert.alert('Erro', 'Ocorreu um erro ao remover o pedido.');
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <View style={styles.container}>
+      <Text style={styles.title}>Registrar Pedido</Text>
+
+      {/* Campo para nome do cliente */}
+      <TextInput
+        style={styles.input}
+        placeholder="Nome do Cliente"
+        value={nomeCliente}
+        onChangeText={setNomeCliente}
+      />
+
+      {/* Campos para adicionar produtos */}
+      <TextInput
+        style={styles.input}
+        placeholder="Nome do Produto"
+        value={produtoNome}
+        onChangeText={setProdutoNome}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Quantidade"
+        keyboardType="numeric"
+        value={quantidade}
+        onChangeText={setQuantidade}
+      />
+
+      <Button title="Adicionar Produto" onPress={adicionarProduto} />
+
+      {/* Lista de produtos adicionados ao pedido */}
+      <FlatList
+        data={produtosDoPedido}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.produto}>
+            <Text>{item.nome} - Quantidade: {item.quantidade}</Text>
+          </View>
+        )}
+      />
+
+      {/* Botão para adicionar o pedido */}
+      <Button title="Adicionar Pedido" onPress={adicionarPedido} />
+
+      {/* Seção de Pedidos */}
+      <TouchableOpacity onPress={() => setMostrarPedidos(!mostrarPedidos)}>
+        <Text style={styles.pedidosTitle}>Pedidos</Text>
+      </TouchableOpacity>
+
+      {/* Lista de pedidos salvos, visível quando mostrarPedidos for true */}
+      {mostrarPedidos && (
+        <FlatList
+          data={pedidos}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.pedido}>
+              <Text>{item.nomeCliente}</Text>
+              <Text>{item.data}</Text>
+              {item.produtos.map((produto, index) => (
+                <Text key={index}>{produto.nome} - Quantidade: {produto.quantidade}</Text>
+              ))}
+              <Button
+                title="Remover Pedido"
+                onPress={() => removerPedido(item.id)} // Remove o pedido ao clicar no botão
+              />
+            </View>
+          )}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  produto: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginTop: 10,
+  },
+  pedido: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginTop: 10,
+  },
+  pedidosTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    color: '#007bff',
   },
 });
