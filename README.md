@@ -31,7 +31,7 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 ## 💻 Projeto
 
 O App tem finalidade de ser um controle de pedidos, para organizar pedidos de pequenas empresas.
-Link Rápido: 
+Link Rápido: https://natandavinci.github.io/controle-de-pedidos/
 
 ---
 
